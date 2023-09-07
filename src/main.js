@@ -1,3 +1,5 @@
+import { config } from "dotenv";
+config({ path: process.ENV })
 import express from 'express'
 import mongoose from 'mongoose'
 import { engine } from 'express-handlebars'
@@ -11,7 +13,7 @@ const PORT = 8080
 const app = express()
 
 // Conexion a Mongodb Atlas
-mongoose.connect('mongodb+srv://Gabrielhm1997:heavymetal1997Judas@backend-cluster.2nvhp7h.mongodb.net/?retryWrites=true&w=majority')
+mongoose.connect(process.env.MONGODB_ATLAS_API_KEY)
     .then(() => console.log("DB connected"))
     .catch(error => console.log(error))
 
