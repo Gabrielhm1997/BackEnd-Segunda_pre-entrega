@@ -9,6 +9,7 @@ Repositorio de los desafíos del alumno Gabriel Navarro para el curso Back-End d
 - Express
 - Express-Handlebars
 - Socket.io
+- Dotenv
 
 ## Para el Profesor o Tutor correspondiente:
 

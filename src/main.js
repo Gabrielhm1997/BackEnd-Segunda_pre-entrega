@@ -13,7 +13,7 @@ const PORT = 8080
 const app = express()
 
 // Conexion a Mongodb Atlas
-mongoose.connect(process.env.MONGODB_ATLAS_API_KEY)
+mongoose.connect(process.env.MONGODB_ATLAS_API_KEY) // Use Dotenv para resguardar la conexion a la db
     .then(() => console.log("DB connected"))
     .catch(error => console.log(error))
 
