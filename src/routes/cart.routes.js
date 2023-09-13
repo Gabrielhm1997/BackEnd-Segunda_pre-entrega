@@ -1,4 +1,4 @@
-import { Router, query } from "express"
+import { Router } from "express"
 import cartModel from "../models/cart.models.js"
 import productModel from "../models/products.models.js"
 
@@ -23,7 +23,6 @@ routerCarts.post('/:cid/products/:pid', async (req, res) => { // Agrega un produ
     const { cid, pid } = req.params
     const { quantity } = req.body
 
-
     try {
 
         const cartFound = await cartModel.findById(cid)
@@ -34,13 +33,11 @@ routerCarts.post('/:cid/products/:pid', async (req, res) => { // Agrega un produ
 
             if (productCollectionFound) {
 
-                const productCartFound = cartFound.products.find(product => product.id_prod.toString() === pid)
+                const productCartFound = cartFound.products.find(product => product.id_prod._id.toString() === pid)
 
                 if (productCartFound) {
 
-                    productCartFound.quantity += quantity
-                    await cartFound.save()
-                    res.status(200).send({ respuesta: 'OK', mensaje: cartFound.products })
+                    res.status(400).send({ respuesta: 'OK', mensaje: 'The product already exists in the cart, please use the corresponding PUT method' })
 
                 } else {
                     cartFound.products.push({ id_prod: pid, quantity: quantity })
@@ -67,7 +64,7 @@ routerCarts.get('/:cid', async (req, res) => { // Lista los productos del carrit
 
     try {
 
-        const cart = await cartModel.findById(cid)
+        const cart = await cartModel.findOne({ _id: cid })
 
         if (cart) {
 
@@ -84,6 +81,161 @@ routerCarts.get('/:cid', async (req, res) => { // Lista los productos del carrit
         }
     } catch (error) {
         res.status(400).send(`Error checking carts: ${error}`)
+    }
+})
+
+routerCarts.put('/:cid', async (req, res) => { // Agrega un array al carrito
+
+    const { cid } = req.params
+    const { arrayProducts } = req.body
+
+    let i = 0
+    let invalidProducts = []
+
+    try {
+        console.log(1)
+        const cartFound = await cartModel.findById(cid)
+        console.log(cartFound)
+        console.log(2)
+
+        if (cartFound) {
+            console.log(3)
+            const recursiva = async () => {
+                console.log(`Roberto: ${i}`)
+
+                if (i < arrayProducts.length) {
+                    console.log(3.25)
+
+                    let productCartFound = cartFound.products.find(product => product.id_prod._id.toString() === arrayProducts[i].id_prod)
+
+                    if (productCartFound) {
+
+                        productCartFound.quantity = arrayProducts[i].quantity
+                        await cartFound.save()
+                        i += 1
+                        recursiva()
+
+                    } else {
+                        try {
+                            let productCollectionFound = null
+                            productCollectionFound = await productModel.findById(arrayProducts[i].id_prod)
+                            console.log(i + ": " + productCollectionFound)
+                            if (productCollectionFound) {
+                                cartFound.products.push(arrayProducts[i])
+                                await cartFound.save()
+                                i += 1
+                                recursiva()
+                            } else {
+                                invalidProducts.push(arrayProducts[i])
+                                i += 1
+                                recursiva()
+                            }
+                        } catch (error) {
+                            res.status(400).send(`Error: ${error}`)
+                        }
+                    }
+                } else {
+                    console.log(4)
+                    res.status(200).send({ status: "OK", cart: cartFound, invalidProducts: invalidProducts })
+                }
+            }
+            recursiva()
+        } else {
+            res.status(404).send('Cart not found')
+        }
+    } catch (error) {
+        res.status(400).send(`Error: ${error}`)
+    }
+})
+
+routerCarts.put('/:cid/products/:pid', async (req, res) => { // Actualiza solo quantity 
+
+    const { cid, pid } = req.params
+    const { quantity } = req.body
+
+    try {
+
+        const cartFound = await cartModel.findById(cid)
+
+        if (cartFound) {
+
+            const productCartFound = cartFound.products.find(product => product.id_prod._id.toString() === pid)
+
+            if (productCartFound) {
+
+                productCartFound.quantity = quantity
+                await cartFound.save()
+                res.status(200).send({ respuesta: 'OK', mensaje: cartFound.products })
+
+            } else {
+
+                res.status(404).send({ respuesta: 'Product does not exist in the cart', mensaje: cartFound.products })
+            }
+
+        } else {
+            res.status(404).send(`Cart Not Found`)
+        }
+
+    } catch (e) {
+        res.status(400).send({ error: e })
+    }
+
+})
+
+routerCarts.delete('/:cid', async (req, res) => { // Vacia el carrito
+
+    const { cid } = req.params
+
+    try {
+
+        const cartFound = await cartModel.findById(cid)
+
+        if (cartFound) {
+
+            cartFound.products = []
+            await cartFound.save()
+
+            res.status(200).send(cartFound)
+
+        } else {
+            res.status(404).send(`Cart Not Found`)
+        }
+
+    } catch (error) {
+        res.status(400).send(error)
+    }
+
+})
+
+routerCarts.delete('/:cid/products/:pid', async (req, res) => { // Elimina un producto especifico del carrito
+
+    const { cid, pid } = req.params
+
+    try {
+
+        const cartFound = await cartModel.findById(cid)
+
+        if (cartFound) {
+
+            const productCartFound = cartFound.products.find(product => product.id_prod._id.toString() === pid)
+
+            if (productCartFound) {
+
+                const indice = cartFound.products.indexOf(productCartFound)
+                cartFound.products.splice(indice, 1)
+                await cartFound.save()
+                res.status(200).send({ respuesta: 'OK', mensaje: cartFound.products })
+
+            } else {
+                res.status(404).send({ respuesta: 'Product does not exist in the cart', mensaje: cartFound.products })
+            }
+
+        } else {
+            res.status(404).send(`Cart Not Found`)
+        }
+
+    } catch (e) {
+        res.status(400).send({ error: e })
     }
 })
 

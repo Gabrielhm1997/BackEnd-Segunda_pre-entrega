@@ -10,6 +10,8 @@ Repositorio de los desafíos del alumno Gabriel Navarro para el curso Back-End d
 - Express-Handlebars
 - Socket.io
 - Dotenv
+- Mongoose
+- Mongoose-Paginate-v2
 
 ## Para el Profesor o Tutor correspondiente:
 

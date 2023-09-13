@@ -4,13 +4,23 @@ import productModel from "../models/products.models.js"
 const routerProducts = Router()
 
 routerProducts.get('/', async (req, res) => { // Devuelve los productos del inventario
-    const { limit } = req.query
+
+    // ?type=title&query=teclado&limit=3&page=1&sort=desc
+    const { limit, page, sort, type, query } = req.query
+    const queryType = ""
+
+    if(type && query){
+        queryType = JSON.parse(`{ "${type}": "${query}"  }`) // Formato de la query
+    }
 
     try {
-        const inventory = await productModel.find().limit(limit)
-        res.status(200).send(inventory)
+        const inventory = await productModel.paginate(queryType, { limit: limit ?? 10, page: page ?? 1, sort: { price: sort } })
+
+        const response = { status: "succes", ...inventory}
+        console.log(inventory)
+        res.status(200).send(response)
     } catch (error) {
-        res.status(400).send(`Error checking inventory: ${error}`)
+        res.status(400).send({ status:"error", error:error})
     }
 })
 
