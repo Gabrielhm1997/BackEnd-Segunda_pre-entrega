@@ -10,7 +10,7 @@ routerCarts.post('/', async (req, res) => { // Crea un nuevo carrito
     try {
 
         const cart = await cartModel.create({})
-        res.status(201).send(cart)//`Cart created successfully`
+        res.status(201).send(cart)
 
     } catch (error) {
         res.status(400).send(`Error creating a new cart: ${error}`)
@@ -93,18 +93,13 @@ routerCarts.put('/:cid', async (req, res) => { // Agrega un array al carrito
     let invalidProducts = []
 
     try {
-        console.log(1)
         const cartFound = await cartModel.findById(cid)
-        console.log(cartFound)
-        console.log(2)
 
         if (cartFound) {
-            console.log(3)
+
             const recursiva = async () => {
-                console.log(`Roberto: ${i}`)
 
                 if (i < arrayProducts.length) {
-                    console.log(3.25)
 
                     let productCartFound = cartFound.products.find(product => product.id_prod._id.toString() === arrayProducts[i].id_prod)
 
@@ -119,7 +114,7 @@ routerCarts.put('/:cid', async (req, res) => { // Agrega un array al carrito
                         try {
                             let productCollectionFound = null
                             productCollectionFound = await productModel.findById(arrayProducts[i].id_prod)
-                            console.log(i + ": " + productCollectionFound)
+
                             if (productCollectionFound) {
                                 cartFound.products.push(arrayProducts[i])
                                 await cartFound.save()
@@ -135,7 +130,6 @@ routerCarts.put('/:cid', async (req, res) => { // Agrega un array al carrito
                         }
                     }
                 } else {
-                    console.log(4)
                     res.status(200).send({ status: "OK", cart: cartFound, invalidProducts: invalidProducts })
                 }
             }
