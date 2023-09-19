@@ -8,6 +8,8 @@ Repositorio de los desafíos del alumno Gabriel Navarro para el curso Back-End d
 - Nodemon
 - Express
 - Express-Handlebars
+- Express-Sessions
+- Express Cookie-parser
 - Socket.io
 - Dotenv
 - Mongoose

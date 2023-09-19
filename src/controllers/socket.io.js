@@ -1,5 +1,6 @@
+import PORT from "../main.js"
+import 'dotenv/config'
 import messageModel from "../models/messages.models.js"
-
 
 export const conexionIO = (io) => {
 
@@ -8,6 +9,7 @@ export const conexionIO = (io) => {
     io.on("connection", async (socket) => {
         console.log("Connection with socket.io established")
 
+        // Vista Mensajes
         socket.on('getMessages', async request => {
 
             try {
@@ -36,6 +38,24 @@ export const conexionIO = (io) => {
             } catch (error) {
 
                 socket.emit('responseCreateMessage', { status: false, error: error })
+            }
+        })
+
+        // Port 
+
+        socket.on('port', async () => {
+            try {
+                socket.emit('responsePort', { status: true, data: PORT})
+            } catch (error) {
+                socket.emit('responsePort', { status: false, error: error.json() })
+            }
+        })
+
+        socket.on('admin', async () => {
+            try {
+                socket.emit('responseAdmin', { status: true, data: process.env.ADMIN_EMAIL})
+            } catch (error) {
+                socket.emit('responseAdmin', { status: false, error: error.json() })
             }
         })
     })

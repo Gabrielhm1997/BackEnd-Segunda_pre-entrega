@@ -7,6 +7,7 @@ routerProducts.get('/', async (req, res) => { // Devuelve los productos del inve
 
     // ?type=title&query=teclado&limit=3&page=1&sort=desc
     const { limit, page, sort, type, query } = req.query
+   
     const queryType = ""
 
     if(type && query){
@@ -15,12 +16,12 @@ routerProducts.get('/', async (req, res) => { // Devuelve los productos del inve
 
     try {
         const inventory = await productModel.paginate(queryType, { limit: limit ?? 10, page: page ?? 1, sort: { price: sort } })
-
-        const response = { status: "succes", ...inventory}
+        console.log(inventory)
+        const response = { status: true, ...inventory}
         console.log(inventory)
         res.status(200).send(response)
     } catch (error) {
-        res.status(400).send({ status:"error", error:error})
+        res.status(400).send({ status: false, error:error})
     }
 })
 
